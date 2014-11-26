@@ -61,5 +61,5 @@ class OCR(object):
                     else:
                         current_value -= grid[y][x]
             matches[char] = current_value / value_total
-        print("Should be {0}: {1}".format(max(matches, key = lambda x: matches[x[0]]), repr(matches)))
+        # print("Should be {0}: {1}".format(max(matches, key = lambda x: matches[x[0]]), repr(matches)))
         return max(matches, key = lambda x: matches[x[0]])

@@ -108,7 +108,7 @@ class CaptchaInputWindow(object):
 
 
 if __name__ == "__main__":
-    for i in range(1):
+    for i in range(3):
         CaptchaGatherThread().start()
     root = tkinter.Tk()
     CaptchaInputWindow(root)
