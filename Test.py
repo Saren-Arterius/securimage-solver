@@ -43,7 +43,7 @@ class CaptchaInputWindow(object):
             trial = captcha_queue.get()
             print("got")
             if not trial[4]:
-                self.another(trial[0], Image.fromstring(trial[1]['mode'], trial[1]['size'], trial[1]['pixels']),
+                self.another(trial[0], Image.frombytes(trial[1]['mode'], trial[1]['size'], trial[1]['pixels']),
                              trial[2],
                              trial[3], trial[4])
             else:
@@ -102,14 +102,16 @@ class CaptchaSolveProcess(Process):
             resp = self.opener.open(captcha_url, urlencode(payload).encode()).read().decode()
             print("put!")
             img_data = {
-                'pixels': solver.captcha.tostring(),
+                'pixels': solver.captcha.tobytes(),
                 'size': solver.captcha.size,
                 'mode': solver.captcha.mode,
             }
             if "captcha was correct" in resp:
                 self.queue.put((Image.open(BytesIO(captcha_img)), img_data, result, True, False))
+                print('Corr')
             else:
                 self.queue.put((Image.open(BytesIO(captcha_img)), img_data, result, False, False))
+                print('Wong')
 
 
 if __name__ == "__main__":
