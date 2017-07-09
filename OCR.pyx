@@ -36,14 +36,14 @@ class OCR(object):
             assert len(row) == OCR.GRID_SIZE
         self.char_grid = char_grid
 
-    def train_char(self, char):
-        assert len(char) == 1 and findall("[a-zA-Z0-9]", char)
-        if char in OCR.chars_db:
+    def train_char(self, c):
+        assert len(c) == 1 and findall("[a-zA-Z0-9]", c)
+        if c in OCR.chars_db:
             for x in range(OCR.GRID_SIZE):
                 for y in range(OCR.GRID_SIZE):
-                    OCR.chars_db[char][y][x] += self.char_grid[y][x]
+                    OCR.chars_db[c][y][x] += self.char_grid[y][x]
         else:
-            OCR.chars_db[char] = self.char_grid
+            OCR.chars_db[c] = self.char_grid
         OCRStorage.save_db(OCR.chars_db)
 
     def match_char(self):

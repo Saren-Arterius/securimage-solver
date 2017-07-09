@@ -116,7 +116,7 @@ class CaptchaSolveProcess(Process):
 
 if __name__ == "__main__":
     captcha_queue = Queue()
-    for i in range(12):
+    for i in range(72):
         CaptchaSolveProcess(captcha_queue).start()
     root = tkinter.Tk()
     window = CaptchaInputWindow(root)

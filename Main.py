@@ -11,27 +11,30 @@ from PIL import Image, ImageTk
 from Solver import Solver
 
 script_path = dirname(realpath(__file__))
-captcha_url = "https://www.phpcaptcha.org/securimage3/new/securimage_show.php"
+captcha_url = "https://saren.wtako.net/securimage/securimage_show.php"
 captcha_length = 6
 
 
 class CaptchaGatherThread(Thread):
 
-    captchas = Queue(5)
+    captchas = Queue(10)
 
     def __init__(self):
         super(CaptchaGatherThread, self).__init__(daemon = True)
 
     def run(self):
         while True:
-            buffer = BytesIO(urlopen(captcha_url).read())
-            solver = Solver(Image.open(buffer), captcha_length)
-            while len(solver.char_areas) != captcha_length:
-                buffer = BytesIO(urlopen(captcha_url).read())
+            solver = None
+            while solver is None or len(solver.char_areas) != captcha_length:
+                rep = urlopen(captcha_url)
+                answer = rep.info()['x-captcha-code']
+                print(answer)
+                buffer = BytesIO(rep.read())
                 solver = Solver(Image.open(buffer), captcha_length)
             buffer.seek(0)
             captcha_result = solver.get_result()
-            CaptchaGatherThread.captchas.put({"captcha": Image.open(buffer), "solver": solver, "guess": captcha_result})
+            CaptchaGatherThread.captchas.put({"captcha": Image.open(buffer), "solver": solver, "guess": captcha_result, "answer": answer})
+            print('Put')
 
 
 class CaptchaInputWindow(object):
@@ -89,6 +92,10 @@ class CaptchaInputWindow(object):
         self.parent.update()
         CaptchaGatherThread.captchas.task_done()
 
+        self.solver.train(solver_queue["answer"])
+        self.interactive.set("Thought: {0}, Trained: {1}".format(self.captcha_guess, solver_queue["answer"]))
+        self.another()
+
     def entry_callback(self):
         if len(self.entry.get()) != captcha_length:
             return self.skip()
@@ -108,7 +115,7 @@ class CaptchaInputWindow(object):
 
 
 if __name__ == "__main__":
-    for i in range(3):
+    for i in range(12):
         CaptchaGatherThread().start()
     root = tkinter.Tk()
     CaptchaInputWindow(root)
